@@ -1,5 +1,5 @@
 argparse
-requests
+requests<2.28
 tld
 configparser
 typing

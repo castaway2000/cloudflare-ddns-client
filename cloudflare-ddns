@@ -354,12 +354,12 @@ def main():
             cached = False
         else:
             res = db.search(net.type=='ipv4')
-            print 'found cache, checking old ip {} against new ip: {}'.format(res[0].get('ip_address'), external_ip)
+            print('found cache, checking old ip {} against new ip: {}'.format(res[0].get('ip_address'), external_ip))
             if res[0].get('ip_address') == external_ip:
                 cached = True
             else:
                 cached = False
-        print 'is cached: {}'.format(cached)
+        print('is cached: {}'.format(cached))
         if not cached:
             print("Handling domains: {}.".format(domains))
             for domain in domains:
