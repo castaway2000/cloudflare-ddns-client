@@ -3,3 +3,4 @@ requests
 tld
 configparser
 typing
+tinydb

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 import argparse
 import json
 import os
@@ -8,7 +8,9 @@ import stat
 import subprocess
 import configparser
 from tld import get_fld
+from tinydb import TinyDB, Query
 
+DB_FILE = os.path.expanduser('~/') + '.db.json'
 CONFIGURATION_FILE = os.path.expanduser('~/') + '.cloudflare-ddns'
 
 EXTERNAL_IP_QUERY_APIS = ['https://api.ipify.org', 'https://checkip.amazonaws.com', 'https://v4.ident.me/',
@@ -17,6 +19,8 @@ CLOUDFLARE_ZONE_QUERY_API = 'https://api.cloudflare.com/client/v4/zones'  # GET
 CLOUDFLARE_ZONE_DNS_RECORDS_QUERY_API = 'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records'  # GET
 CLOUDFLARE_ZONE_DNS_RECORDS_UPDATE_API = 'https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{dns_record_id}'  # PATCH
 
+db = TinyDB(DB_FILE)
+net = Query()
 # Backwards compatible with Python 2
 try:
     input = raw_input
@@ -343,10 +347,24 @@ def main():
 
         if not domains:
             raise RuntimeError("No domains found to update.")
-        
-        print("Handling domains: {}.".format(domains))
-        for domain in domains:
-            update_dns(domain, auth, external_ip, ipv6)
+        cached = True
+        if not db.all():
+            print('cache not found')
+            db.insert({'type': 'ipv4', 'ip_address': str(external_ip)})
+            cached = False
+        else:
+            res = db.search(net.type=='ipv4')
+            print 'found cache, checking old ip {} against new ip: {}'.format(res[0].get('ip_address'), external_ip)
+            if res[0].get('ip_address') == external_ip:
+                cached = True
+            else:
+                cached = False
+        print 'is cached: {}'.format(cached)
+        if not cached:
+            print("Handling domains: {}.".format(domains))
+            for domain in domains:
+                update_dns(domain, auth, external_ip, ipv6)
+            db.update({'ip_address': external_ip}, net.type=='ipv4')
     else:
         print('No arguments passed; exiting.')
         print('Try cloudflare-ddns --help.')
