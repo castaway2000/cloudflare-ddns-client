@@ -6,7 +6,7 @@ This Python-based script interfaces with [CloudFlare's client API](https://api.c
 ### Installation
 Installation is fairly straightforward. Note that you should install the script on the server whose external IP you want reflected in your domains' DNS records. It is assumed that the server has a Python interpreter already installed.
 ```bash
-git clone https://github.com/LINKIWI/cloudflare-ddns-client.git
+git clone https://github.com/castaway2000/cloudflare-ddns-client.git
 cd cloudflare-ddns-client
 sudo make install
 ```
